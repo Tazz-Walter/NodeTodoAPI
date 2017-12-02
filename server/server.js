@@ -1,39 +1,29 @@
-const mongoose = require("mongoose");
+var express = require('express');
+var bodyParser = require('body-parser');
 
-mongoose.Promise = global.Promise;
-// mongoose.connect('mongodb://localhost:27017/NuevaApp'); deprecated
-//otra forma de conectar
-// var promise = mongoose.createConnection('mongodb://localhost:27017/NuevaApp', {
-//   useMongoClient: true,
-//   /* other options */
-// });
-// promise.then(function(db) {
-//    // Use `db`, for instance `db.model()`
-// });
-mongoose.connect('mongodb://localhost:27017/NuevaApp', {
-  useMongoClient: true
+var {mongoose, validator} = require('./db/mongoose');
+var {Todos} = require('./models/todo');
+var {User} = require('./models/user');
+var {Datos} = require('./models/datos');
+
+var app = express();
+
+app.use(bodyParser.json());
+
+app.post('/todos', (req, res) => {
+  // console.log(req.body);
+  var newTodo = new Todos({
+    text: req.body.text
+  });
+
+  newTodo.save().then((doc) => {
+    res.send(doc);
+  }, (error) =>{
+    res.status(400).send(error);
+  });
+
 });
 
-var Datos = mongoose.model('Datos', {
-  text: {
-    type: String
-  },
-  completed: {
-    type: Boolean
-  },
-  completedAt: {
-    type: Number
-  }
-});
-
-var newDatos2 = new Datos({
-  text: 'Walterrrr ea ea',
-  completed: true,
-  completedAt: 1234
-});
-
-newDatos2.save().then((doc) =>{
-  console.log('Saved to' + doc);
-}, (err) => {
-  console.log(`Unable to save.. error: $(err)`);
+app.listen(3000, () => {
+  console.log('Started on port 3000');
 });
