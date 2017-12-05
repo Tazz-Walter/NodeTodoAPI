@@ -1,12 +1,15 @@
 const expect = require('expect');
 const request = require('supertest');
+const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todos} = require('./../models/todo');
 
 const registros = [{
+  _id: new ObjectID(),
   text: 'First test todo'
 }, {
+  _id: new ObjectID(),
   text: 'Second test todo'
 }];
 
@@ -20,7 +23,7 @@ beforeEach((done) => {
 describe('POST /Todos', () => {
     it('should create a new Todo', (done) => {
       var text = 'Testeando /Todos';
-
+      //crea un nuevo registro y lo testea
       request(app)
         .post('/todos')
         .send({text})
@@ -40,7 +43,7 @@ describe('POST /Todos', () => {
           }).catch((e) => done(e));
       });
     });
-
+    //testea q no se creen objetos con datos invalidos
     it('Should not create todo with invalid body data', (done) =>{
       request(app)
         .post('/todos')
@@ -58,9 +61,9 @@ describe('POST /Todos', () => {
         });
     });
 });
-
+//testing Get todos los registros
 describe('GET /Todos', () => {
-  it('Should get all /todos', (done) =>{
+  it('Should get all /todos', (done) => {
     request(app)
       .get('/todos')
       .expect(200)
@@ -70,4 +73,32 @@ describe('GET /Todos', () => {
       .end(done);
 
   });
+});
+//testing get /todos con URL pasando ID
+describe('GET /Todos', () => {
+  it('Should return document from /todos/:id', (done) =>{
+    request(app)
+      .get(`/todos/${registros[0]._id.toHexString()}`)
+      .expect(200)
+      .expect((res) => {
+          expect(res.body.todo.text).toBe(registros[0].text);
+      })
+      .end(done);
+  });
+
+  it('should return 404 todo not found', (done) => {
+    var hexId = new ObjectID().toHexString();
+    request(app)
+      .get(`/todos/${hexId}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 for non-object ids', (done) => {
+    request(app)
+      .get(`/todos/123abc`)
+      .expect(404)
+      .end(done);
+  });
+
 });

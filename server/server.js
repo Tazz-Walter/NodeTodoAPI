@@ -1,8 +1,8 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
+const bodyParser = require('body-parser');
 
-var {mongoose} = require('./db/mongoose');
-var {Todos} = require('./models/todo');
+const {mongoose} = require('./db/mongoose');
+const {Todos} = require('./models/todo');
 const {ObjectID} = require('mongodb');
 // var {User} = require('./models/user');
 // var {Datos} = require('./models/datos');
