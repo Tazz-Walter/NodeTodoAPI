@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 
 var {mongoose} = require('./db/mongoose');
 var {Todos} = require('./models/todo');
+const {ObjectID} = require('mongodb');
 // var {User} = require('./models/user');
 // var {Datos} = require('./models/datos');
 
@@ -24,13 +25,30 @@ app.post('/Todos', (req, res) => {
   });
 
 });
-
+//busca todos los registros
 app.get('/todos', (req, res) => {
   Todos.find().then((todos) =>{
     res.send({todos});
   }, (e) => {
     res.status(400).send(e);
   });
+});
+
+// GET /todos/1234567 Url+ID
+//busca por ID determinado
+app.get('/todos/:id',(req, res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  Todos.findById(id).then((todo) => {
+    if(!todo) {
+      return res.status(404).send();
+    }
+    res.send({todo});
+  }).catch((e) => res.status(400).send());
 });
 
 
