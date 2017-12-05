@@ -6,7 +6,7 @@ var validator = require('validator');
 var Users = mongoose.model('Users', {
   email: {
     type: String,
-    require: true,
+    required: true,
     minlength: 1,
     trim: true, // elimina los espacios en blanco antes y despues del texto.
     unique: true,

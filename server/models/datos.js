@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var Datos = mongoose.model('Datos', {
   text: {
     type: String,
-    require: true,
+    required: true,
     minlength: 2,
     maxlength: 8,
     trim: true // elimina los espacios en blanco antes y despues del texto.
