@@ -1,21 +1,25 @@
 var mongoose = require('mongoose');
-
+//constructor
 var Todos = mongoose.model('Todos', {
   text: {
     type: String,
-    require: true,
-    minlength: 2,
-    // maxlength: 8,
+    required: true,
+    minlength: 1,
+    maxlength: 20,
     trim: true // elimina los espacios en blanco antes y despues del texto.
   },
   completed: {
     type: Boolean,
-    default: false
+     default: 'False'
   },
   completedAt: {
+
     type: Number,
     default: null
   }
-});
+}, 'Todos');
+//volviendo a agregar Todos al final se especifica a mongoose q queremos esta
+//tabla sino lo pasa atraves de formaters y te lo pasa a minuscula y agrega una
+//"s" al final
 
 module.exports = {Todos};

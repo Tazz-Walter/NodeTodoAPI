@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
-
+//agregando validator primero npm install validator y luego aca para poder usarlo
+// con esto podemos usar validator para validar email entre otras cosas
 //agregando schemas validation
 var Datos = mongoose.model('Datos', {
   text: {
