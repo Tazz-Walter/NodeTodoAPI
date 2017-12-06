@@ -15,7 +15,7 @@ mongoose.Promise = global.Promise;
 
 //db.mlab work around de arriba.
 // mongoose.connect(db.localhost || process.env.MONGODB_URI || db.mlab, {
-mongoose.connect(db.localhost || process.env.MONGODB_URI, {
+mongoose.connect(process.env.MONGODB_URI || db.localhost, {
   useMongoClient: true
 });
 
