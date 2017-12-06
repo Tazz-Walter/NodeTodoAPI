@@ -6,7 +6,16 @@ mongoose.Promise = global.Promise;
 //   useMongoClient: true,
 //   /* other options */
 // });
-mongoose.connect('mongodb://localhost:27017/TodoApp', {
+
+//work around para conectar con mlab
+ let db = {
+   localhost 'mongodb://localhost:27017/TodoApp'
+   // mlab: "mongodb://walter:walter@ds133166.mlab.com:33166/todos"
+ }
+
+//db.mlab work around de arriba.
+// mongoose.connect(db.localhost || process.env.MONGODB_URI || db.mlab, {
+mongoose.connect(db.localhost || process.env.MONGODB_URI, {
   useMongoClient: true
 });
 
