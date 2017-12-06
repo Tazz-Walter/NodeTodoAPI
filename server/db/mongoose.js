@@ -9,7 +9,7 @@ mongoose.Promise = global.Promise;
 
 //work around para conectar con mlab
  let db = {
-   localhost 'mongodb://localhost:27017/TodoApp'
+   localhost: 'mongodb://localhost:27017/TodoApp'
    // mlab: "mongodb://walter:walter@ds133166.mlab.com:33166/todos"
  }
 
