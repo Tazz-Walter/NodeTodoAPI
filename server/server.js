@@ -1,9 +1,10 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
-
-const {mongoose} = require('./db/mongoose');
-const {Todos} = require('./models/todo');
 const {ObjectID} = require('mongodb');
+const {mongoose} = require('./db/mongoose');
+
+var {Todos} = require('./models/todo');
 // var {User} = require('./models/user');
 // var {Datos} = require('./models/datos');
 
@@ -68,6 +69,35 @@ app.delete('/todos/:id', (req, res) => {
 
 });
 
+//http patch resource
+//nos permite actualizar todo Items
+app.patch('/todos/:id', (req, res) => {
+  var id= req.params.id;
+  //cramos la variable body con lo q nos actualiza el usuario
+  //no queremos q nos actulize cualquier cosa
+  var body = _.pick(req.body, ['text', 'completed']);
+  //verificamos q sea valido el id
+  if (!ObjectID.isValid(id)) {
+    return res.status(404).send();
+  }
+
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  //buscamos el id registro q vamos a actualizar
+  Todos.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(400).send();
+    }
+    res.send({todo});
+  }).catch((e) =>{
+    res.status(400).send();
+  })
+});
 
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
