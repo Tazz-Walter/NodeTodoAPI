@@ -100,5 +100,45 @@ describe('GET /Todos', () => {
       .expect(404)
       .end(done);
   });
+});
+//testeamdp Borrando datos a la base de datos
+describe('DELETE /todos/:id', () => {
+  it('Should remove a todo', (done) => {
+    var hexId = registros[1]._id.toHexString();
+
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(200)
+      .expect((res) => {
+          expect(res.body.todo._id).toBe(hexId);
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        //buscamos q realmente alla sido borrado
+        Todos.findById(hexId).then((todo) => {
+          // expect(null).toNotExist(); problema de q no funciona el metodo
+          // todo = null
+          expect(todo).toBe(null);
+          done();
+        }).catch((e)=> done(e));
+      });
+  });
+
+  it('should retun 404 if object id is invalid', (done) => {
+    var hexId = new ObjectID().toHexString();
+    request(app)
+      .delete(`/todos/${hexId}`)
+      .expect(404)
+      .end(done);
+  });
+
+  it('should return 404 if object id is invalid', (done) => {
+    request(app)
+      .delete(`/todos/123abc`)
+      .expect(404)
+      .end(done);
+  });
 
 });
