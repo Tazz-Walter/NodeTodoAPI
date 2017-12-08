@@ -7,7 +7,7 @@ const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 
 var {Todos} = require('./models/todo');
-// var {User} = require('./models/user');
+var {Users} = require('./models/user');
 // var {Datos} = require('./models/datos');
 
 var port = process.env.PORT;
@@ -99,6 +99,17 @@ app.patch('/todos/:id', (req, res) => {
     res.send({todo});
   }).catch((e) =>{
     res.status(400).send();
+  })
+});
+
+app.post('/Users', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  var newUsers = new Users(body);
+
+  newUsers.save().then((userDoc) => {
+    res.send(userDoc);
+  }).catch((error) => {
+    res.status(400).send(error);
   })
 });
 
