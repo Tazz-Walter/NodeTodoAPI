@@ -25,7 +25,7 @@ app.post('/Todos', (req, res) => {
   newTodo.save().then((doc) => {
     res.send(doc);
   }, (error) => {
-    console.log('hubo un error al querer grabar');
+    // console.log('hubo un error al querer grabar');
     res.status(400).send(error);
   });
 

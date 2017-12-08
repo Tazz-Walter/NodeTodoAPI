@@ -119,10 +119,8 @@ describe('DELETE /todos/:id', () => {
           return done(err);
         }
         //buscamos q realmente alla sido borrado
-        Todos.findById(hexId).then((todo) => {
-          // expect(null).toNotExist(); problema de q no funciona el metodo
-          // todo = null
-          expect(todo).toBe(null);
+        Todos.findById(hexId).then((todo) => {          
+          expect(todo).toBeNull();
           done();
         }).catch((e)=> done(e));
       });
@@ -178,8 +176,8 @@ describe ('PATCH /todos/:id', () => {
     .expect(200)
     .expect((res) => {
       expect(res.body.todo.text).toBe(text);
-      expect(res.body.todo.completed).toBe(false);      
-      expect(res.body.todo.completedAt).toBe(null);
+      expect(res.body.todo.completed).toBe(false);
+      expect(res.body.todo.completedAt).toBeNull();
     })
     .end(done);
   });
