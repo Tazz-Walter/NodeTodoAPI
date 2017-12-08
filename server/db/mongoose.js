@@ -8,14 +8,14 @@ mongoose.Promise = global.Promise;
 // });
 
 //work around para conectar con mlab
- let db = {
-   localhost: 'mongodb://localhost:27017/TodoApp'
-   // mlab: "mongodb://walter:walter@ds133166.mlab.com:33166/todos"
- }
+ // let db = {
+ //   localhost: 'mongodb://localhost:27017/TodoApp'
+ //   mlab: "mongodb://walter:walter@ds133166.mlab.com:33166/todos"
+ // }
 
 //db.mlab work around de arriba.
 // mongoose.connect(db.localhost || process.env.MONGODB_URI || db.mlab, {
-mongoose.connect(process.env.MONGODB_URI || db.localhost, {
+mongoose.connect(process.env.MONGODB_URI, {
   useMongoClient: true
 });
 
