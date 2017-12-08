@@ -56,7 +56,7 @@ app.get('/todos/:id',(req, res) => {
     res.send({todo});
   }).catch((e) => res.status(400).send());
 });
-
+//Borra por ID en /todos
 app.delete('/todos/:id', (req, res) => {
   var id = req.params.id;
 
@@ -117,11 +117,10 @@ app.post('/Users', (req, res) => {
   })
 });
 
-// GET /User
+// GET /User con authenticate generado de 0
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
 });
-
 
 app.listen(port, () => {
   console.log(`Started on port ${port}`);

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 // constructor de Objectos y en estos objectos
 // podemos creaer metodos instantaneos
@@ -59,7 +60,7 @@ UserSchema.methods.generateAuthToken = function () {
     return token;
   });
 };
-
+//Find User by tokens
 UserSchema.statics.findByToken = function (token) {
   // metodos instantaneos usan minuscula q llama a modelos individuales
   //methods models se usan con mayusculas y bindean el modelo
@@ -74,23 +75,32 @@ UserSchema.statics.findByToken = function (token) {
     //hace lo mismo de arriba pero mas simple
     return Promise.reject();
   }
+
   return User.findOne({
     '_id': decoded._id,
     'tokens.token': token,
     'tokens.access' : 'auth'
   });
-
 }
+
+UserSchema.pre('save', function (next) {
+  var user = this;
+
+  if (user.isModified('password')) {
+
+      bcrypt.genSalt(10, (err, salt) =>{
+        bcrypt.hash(user.password, salt, (err, hash) =>{
+          user.password = hash;
+          next();
+        });
+      });
+
+  } else {
+    next();
+  }
+});
+
 
 var Users = mongoose.model('Users', UserSchema, 'Users');
 
-// var newUsers = new Users({
-//   email: 'walter'
-// });
-//
-// newUsers.save().then((doc) =>{
-//   console.log('Saved to' + doc);
-// }, (err) => {
-//   console.log("Unable to save.. error: " + err);
-// });
 module.exports = {Users};
