@@ -40,7 +40,6 @@ var UserSchema = new mongoose.Schema({
 UserSchema.methods.toJSON = function () {
   var user = this;
   var userObject = user.toObject();
-
   return _.pick(userObject, ['_id', 'email']);
 };
 
@@ -52,16 +51,36 @@ UserSchema.methods.generateAuthToken = function () {
     _id: user._id.toHexString(),
     access
   }, 'abc123').toString();
-
+  //guarda en user.token access y token generados
   user.tokens.push({access, token});
-  // user.save() devuelve una promesa
-  //dentro devolvemos el token
+  // user.save() devuelve una promesa,dentro devolvemos el token
   //tenemos una promesa dentro de otra q devuelve el token
   return user.save().then(()=>{
     return token;
   });
-
 };
+
+UserSchema.statics.findByToken = function (token) {
+  // metodos instantaneos usan minuscula q llama a modelos individuales
+  //methods models se usan con mayusculas y bindean el modelo
+  var User= this;
+  var decoded;
+  try {
+    decoded = jwt.verify(token, 'abc123')
+  } catch (e) {
+    // return new Promise((resolve, reject) => {
+    //   reject();
+    // });
+    //hace lo mismo de arriba pero mas simple
+    return Promise.reject();
+  }
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access' : 'auth'
+  });
+
+}
 
 var Users = mongoose.model('Users', UserSchema, 'Users');
 

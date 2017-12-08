@@ -8,6 +8,7 @@ const {mongoose} = require('./db/mongoose');
 
 var {Todos} = require('./models/todo');
 var {Users} = require('./models/user');
+var {authenticate} = require('./middleware/authenticate');
 // var {Datos} = require('./models/datos');
 
 var port = process.env.PORT;
@@ -102,6 +103,7 @@ app.patch('/todos/:id', (req, res) => {
   })
 });
 
+// POST /users
 app.post('/Users', (req, res) => {
   var body = _.pick(req.body, ['email', 'password']);
   var user = new Users(body);
@@ -114,6 +116,12 @@ app.post('/Users', (req, res) => {
     res.status(400).send(error);
   })
 });
+
+// GET /User
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
+
 
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
