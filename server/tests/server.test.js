@@ -4,23 +4,12 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todos} = require('./../models/todo');
+const {registros, populateTodos, users, populateUsers} = require('./seed/seed');
 
-const registros = [{
-  _id: new ObjectID(),
-  text: 'First test todo'
-}, {
-  _id: new ObjectID(),
-  text: 'Second test todo',
-  completed: true,
-  completedAt: 333
-}];
-
-//esto borra todo de la base de datos(TodoApp) tabla "todos"
-beforeEach((done) => {
-  Todos.remove({}).then(() => {
-    return Todos.insertMany(registros);
-  }).then(() => done ());
-});
+beforeEach(populateUsers);
+//llamam a populatesTodos borra todo de la base de datos(TodoApp) tabla "todos"
+//y lo popula
+beforeEach(populateTodos);
 
 describe('POST /Todos', () => {
     it('should create a new Todo', (done) => {
@@ -103,7 +92,7 @@ describe('GET /Todos', () => {
       .end(done);
   });
 });
-//testeamdp Borrando datos a la base de datos
+//testeando Borrando datos a la base de datos
 describe('DELETE /todos/:id', () => {
   it('Should remove a todo', (done) => {
     var hexId = registros[1]._id.toHexString();
@@ -119,7 +108,7 @@ describe('DELETE /todos/:id', () => {
           return done(err);
         }
         //buscamos q realmente alla sido borrado
-        Todos.findById(hexId).then((todo) => {          
+        Todos.findById(hexId).then((todo) => {
           expect(todo).toBeNull();
           done();
         }).catch((e)=> done(e));
@@ -142,8 +131,8 @@ describe('DELETE /todos/:id', () => {
   });
 
 });
-
-describe ('PATCH /todos/:id', () => {
+//Testing update - patch
+describe('PATCH /todos/:id', () => {
   it('Should update the todo', (done) => {
     var hexId = registros[0]._id.toHexString();
     var text = 'this is de new text';
