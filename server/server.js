@@ -127,9 +127,18 @@ app.post('/users/login', (req, res) => {
    });
 });
 
-// GET /User con authenticate generado de 0
+// GET /User con authenticate
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
+});
+
+//delete Token from users that are log in
+app.delete('/users/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  }, () => {
+    res.status(400).send();
+  });
 });
 
 app.listen(port, () => {

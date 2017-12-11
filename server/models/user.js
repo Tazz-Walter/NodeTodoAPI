@@ -44,7 +44,7 @@ UserSchema.methods.toJSON = function () {
   return _.pick(userObject, ['_id', 'email']);
 };
 
-//para crear metodos instantaneos del constructor
+//Metodo instantaneo del constructor
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
@@ -56,19 +56,34 @@ UserSchema.methods.generateAuthToken = function () {
   user.tokens.push({access, token});
   // user.save() devuelve una promesa,dentro devolvemos el token
   //tenemos una promesa dentro de otra q devuelve el token
-  return user.save().then(()=>{
+  return user.save().then(() => {
     return token;
   });
 };
+//Metodo instantaneo para borrar token de usuarios logueados
+UserSchema.methods.removeToken = function (token) {
+  var user = this;
+  //$pull te deja remover de un array segun matchee al criterio en este caso
+  //removeremos del array de tokens el token dado
+  return user.update({
+    $pull :{
+      tokens : {
+        token: token
+      }
+    }
+  });
+};
+
 //buscamos usuario en la base de datos por email. vamos a matchear
 //password en texto plano contra el hash de la base de datos con bcryptjs
+//Metodos estaticos
 UserSchema.statics.findByCredentials = function (email, password) {
   var User = this;
-
-  return User.findOne({email}).then((user)=>{
+  return User.findOne({email}).then((user) => {
     if(!user){
       return Promise.reject();
     }
+
     return new Promise((resolve, reject) => {
       bcrypt.compare(password, user.password, (err, result) => {
         if (result) {//si es son iguales
@@ -79,7 +94,6 @@ UserSchema.statics.findByCredentials = function (email, password) {
       });
     });
   });
-
 };
 
 //Find User by tokens
@@ -105,6 +119,8 @@ UserSchema.statics.findByToken = function (token) {
   });
 }
 // Realiza un hash del password antes de guardar en la base de datos.
+//Existe el .pre y el .post Por ejemplo para guardar o cerrar algo luego
+//de una accion a la base de datos
 UserSchema.pre('save', function (next) {
   var user = this;
   if (user.isModified('password')) {
@@ -119,7 +135,6 @@ UserSchema.pre('save', function (next) {
     next();
   }
 });
-
 
 var Users = mongoose.model('Users', UserSchema, 'Users');
 
