@@ -67,7 +67,7 @@ describe('GET /Todos', () => {
   });
 });
 //testing get /todos con URL pasando ID
-describe('GET /Todos', () => {
+describe('GET /todos/:id', () => {
   it('Should return document from /todos/:id', (done) =>{
     request(app)
       .get(`/todos/${registros[0]._id.toHexString()}`)
@@ -172,7 +172,6 @@ describe('PATCH /todos/:id', () => {
     .end(done);
   });
 });
-
 //testing Get users/me
 describe('GET /users/me',() => {
   it('should return user if authenticated', (done) => {
@@ -187,7 +186,7 @@ describe('GET /users/me',() => {
       .end(done);
   });
 
-  it('should return user if authenticated', (done) => {
+  it('should not return user if not authenticated', (done) => {
     request(app)
       .get('/users/me')
       .expect(401)
@@ -197,7 +196,6 @@ describe('GET /users/me',() => {
       .end(done);
   });
 });
-
 //testing /Post New Users
 describe('POST /users',() => {
   it('should create New User', (done) => {
@@ -220,7 +218,7 @@ describe('POST /users',() => {
           expect(user).toBeDefined();
           expect(user.password).not.toEqual(password);
           done();
-        });
+        }).catch((e) => done(e));
       });
   });
 
@@ -243,4 +241,56 @@ describe('POST /users',() => {
       .expect(400)
       .end(done);
   });
+});
+//testing POST add new token for login Users
+describe('POST /users/login',() => {
+  it('should login user and return auth token', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: users[1].password
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.header['x-auth']).toBeDefined();
+      })
+      .end((err, res) =>{
+        if (err) {
+          return done(err);
+        }
+        Users.findById(users[1]._id).then((user) => {
+          //buscamos el token q generamos arriba con el post en la posicion 0
+          //ya que el usuario[1] no tiene tokens predefinidos
+          expect(user.tokens[0]).toEqual(expect.objectContaining({
+            access: 'auth',
+            token: res.header['x-auth']
+          }));
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
+  it('should reject invalid login', (done) => {
+    request(app)
+      .post('/users/login')
+      .send({
+        email: users[1].email,
+        password: 'pasword0' // pasword erroneo
+      })
+      .expect(400)
+      .expect((res) => {
+        expect(res.header['x-auth']).not.toBeDefined();
+      })
+      .end((err, res) =>{
+        if (err) {
+          return done(err);
+        }
+        Users.findById(users[1]._id).then((user) => {
+          expect(user.tokens.lenght).not.toBeDefined();
+          done();
+        }).catch((e) => done(e));
+      });
+  });
+
 });
