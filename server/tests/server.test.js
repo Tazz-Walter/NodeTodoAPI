@@ -4,6 +4,7 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server');
 const {Todos} = require('./../models/todo');
+const {Users} = require('./../models/user');
 const {registros, populateTodos, users, populateUsers} = require('./seed/seed');
 
 beforeEach(populateUsers);
@@ -185,6 +186,62 @@ describe('GET /users/me',() => {
       })
       .end(done);
   });
-  
 
+  it('should return user if authenticated', (done) => {
+    request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect((res) => {
+        expect(res.body).toEqual({});
+      })
+      .end(done);
+  });
+});
+
+//testing /Post New Users
+describe('POST /users',() => {
+
+  it('should create New User', (done) => {
+    var email = 'example@gmail.com';
+    var password = '123abc';
+    request(app)
+      .post('/users')
+      .send({email, password})
+      .expect(200)
+      .expect((res) => {
+        expect(res.header['x-auth']).toBeDefined();
+        expect(res.body._id).toBeDefined();
+        expect(res.body.email).toEqual(email);
+      })
+      .end((err) => {
+        if (err) {
+          return done(err);
+        }
+        Users.findOne({email}).then((user) => {
+          expect(user).toBeDefined();
+          expect(user.password).not.toEqual(password);
+          done();
+        });
+      });
+  });
+
+  it('should return validations error if request invalid', (done) => {
+    var email = 'examplegmail.com';
+    var password = '1c';
+    request(app)
+      .post('/users')
+      .send({email, password})
+      .expect(400)
+      .end(done);
+  });
+
+  it('should not create user if email in use', (done) => {
+    var email = users[0].email;
+    var password = '123abc';
+    request(app)
+      .post('/users')
+      .send({email, password})
+      .expect(400)
+      .end(done);
+  });
 });
