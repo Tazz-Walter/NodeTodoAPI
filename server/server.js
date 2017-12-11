@@ -44,7 +44,6 @@ app.get('/todos', (req, res) => {
 //busca por ID determinado
 app.get('/todos/:id',(req, res) => {
   var id = req.params.id;
-
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
@@ -69,7 +68,6 @@ app.delete('/todos/:id', (req, res) => {
     }
     res.status(200).send({todo});
   }).catch((e) => res.status(400).send());
-
 });
 
 //http patch resource
@@ -90,7 +88,6 @@ app.patch('/todos/:id', (req, res) => {
     body.completed = false;
     body.completedAt = null;
   }
-
   //buscamos el id registro q vamos a actualizar
   //y lo actualizamos con los datos de body q estan revisados.
   Todos.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
@@ -115,6 +112,19 @@ app.post('/Users', (req, res) => {
   }).catch((error) => {
     res.status(400).send(error);
   })
+});
+
+// POST /user/login {email, password}
+app.post('/users/login', (req, res) => {
+   var body = _.pick(req.body, ['email', 'password']);
+   //genera un token para el usuario q este en la base de datos
+   Users.findByCredentials(body.email, body.password).then((user) => {
+     return user.generateAuthToken().then((token) =>{
+       res.header('x-auth', token).send(user);
+     });
+   }).catch((e) => {
+     res.status(400).send();
+   });
 });
 
 // GET /User con authenticate generado de 0

@@ -200,7 +200,6 @@ describe('GET /users/me',() => {
 
 //testing /Post New Users
 describe('POST /users',() => {
-
   it('should create New User', (done) => {
     var email = 'example@gmail.com';
     var password = '123abc';

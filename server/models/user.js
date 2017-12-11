@@ -60,6 +60,28 @@ UserSchema.methods.generateAuthToken = function () {
     return token;
   });
 };
+//buscamos usuario en la base de datos por email. vamos a matchear
+//password en texto plano contra el hash de la base de datos con bcryptjs
+UserSchema.statics.findByCredentials = function (email, password) {
+  var User = this;
+
+  return User.findOne({email}).then((user)=>{
+    if(!user){
+      return Promise.reject();
+    }
+    return new Promise((resolve, reject) => {
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (result) {//si es son iguales
+            resolve(user);
+        } else {
+          reject();
+        }
+      });
+    });
+  });
+
+};
+
 //Find User by tokens
 UserSchema.statics.findByToken = function (token) {
   // metodos instantaneos usan minuscula q llama a modelos individuales
