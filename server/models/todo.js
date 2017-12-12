@@ -13,9 +13,12 @@ var Todos = mongoose.model('Todos', {
      default: 'False'
   },
   completedAt: {
-
     type: Number,
     default: null
+  },
+  _creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true
   }
 }, 'Todos');
 //volviendo a agregar Todos al final se especifica a mongoose q queremos esta

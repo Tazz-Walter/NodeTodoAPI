@@ -17,10 +17,11 @@ var app = express();
 
 app.use(bodyParser.json());
 
-app.post('/Todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
   // console.log(req.body);
   var newTodo = new Todos({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
 
   newTodo.save().then((doc) => {
@@ -32,8 +33,12 @@ app.post('/Todos', (req, res) => {
 
 });
 //busca todos los registros
-app.get('/todos', (req, res) => {
-  Todos.find().then((todos) =>{
+app.get('/todos', authenticate, (req, res) => {
+  //solo va a devolver registros de la tabla Todos q solo hayan sido
+  //generados por el usuario q esta logueado! muy bueno!
+  Todos.find({
+    _creator: req.user._id
+  }).then((todos) =>{
     res.send({todos});
   }, (e) => {
     res.status(400).send(e);
