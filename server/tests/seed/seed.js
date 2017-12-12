@@ -18,7 +18,11 @@ const users = [{
 },{
   _id: userTwoId,
   email: 'alejandro1@gmail.com',
-  password: 'password2'
+  password: 'password2',
+  tokens: [{
+    access: 'auth',
+    token: jwt.sign({_id: userTwoId, access: 'auth'}, 'abc123').toString()
+  }]
 }];
 
 //carga 2 registros de /todos

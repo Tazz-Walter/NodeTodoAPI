@@ -47,27 +47,34 @@ app.get('/todos', authenticate, (req, res) => {
 
 // GET /todos/1234567 Url+ID
 //busca por ID determinado
-app.get('/todos/:id',(req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
   var id = req.params.id;
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
 
-  Todos.findById(id).then((todo) => {
+  Todos.findOne({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if(!todo) {
       return res.status(404).send();
     }
     res.send({todo});
   }).catch((e) => res.status(400).send());
 });
+
 //Borra por ID en /todos
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
   var id = req.params.id;
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
-  Todos.findByIdAndRemove(id).then((todo) => {
+  Todos.findOneAndRemove({
+    _id: id,
+    _creator: req.user._id
+  }).then((todo) => {
     if(!todo) {
       return res.status(404).send();
     }
@@ -77,7 +84,7 @@ app.delete('/todos/:id', (req, res) => {
 
 //http patch resource
 //nos permite actualizar todo Items
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
   var id= req.params.id;
   //cramos la variable body con lo q nos actualiza el usuario
   //no queremos q nos actulize cualquier cosa
@@ -94,10 +101,18 @@ app.patch('/todos/:id', (req, res) => {
     body.completedAt = null;
   }
   //buscamos el id registro q vamos a actualizar
+  //solo podremos actulizar aquellos creados por el mismo usuario
   //y lo actualizamos con los datos de body q estan revisados.
-  Todos.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+  Todos.findOneAndUpdate({
+        _id: id,
+        _creator: req.user._id
+      }, {
+        $set: body
+      }, {
+        new: true
+      }).then((todo) => {
     if (!todo) {
-      return res.status(400).send();
+      return res.status(404).send();
     }
     res.send({todo});
   }).catch((e) =>{
