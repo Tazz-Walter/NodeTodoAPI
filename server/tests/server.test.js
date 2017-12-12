@@ -78,7 +78,7 @@ describe('GET /todos/:id', () => {
       .end(done);
   });
 
-  it('should return 404 todo not found', (done) => {
+  it('should return 404 if todo not found', (done) => {
     var hexId = new ObjectID().toHexString();
     request(app)
       .get(`/todos/${hexId}`)
@@ -293,4 +293,22 @@ describe('POST /users/login',() => {
       });
   });
 
+});
+//testing when we log out a user and delete the token
+describe('DELETE /user/me/token', () => {
+  it('should remove auth token on logout', () => {
+    request(app)
+      .delete('/users/me/token')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .end((erro, res) =>{
+        if(err) {
+          return done(err);
+        }
+        Users.findById(users[0]._id).then((user) => {
+          expect(user.tokens.lenght).toBeDefined();
+          done();
+        }).catch((e) => done(e));
+      });
+  });
 });
