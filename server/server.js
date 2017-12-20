@@ -65,21 +65,26 @@ app.get('/todos/:id', authenticate, (req, res) => {
 });
 
 //Borra por ID en /todos
-app.delete('/todos/:id', authenticate, (req, res) => {
-  var id = req.params.id;
+app.delete('/todos/:id', authenticate, async (req, res) => {
+  const id = req.params.id;
 
   if (!ObjectID.isValid(id)) {
     return res.status(404).send();
   }
-  Todos.findOneAndRemove({
-    _id: id,
-    _creator: req.user._id
-  }).then((todo) => {
+
+  try {
+    const todo = await Todos.findOneAndRemove({
+      _id: id,
+      _creator: req.user._id
+    });
+
     if(!todo) {
-      return res.status(404).send();
-    }
-    res.status(200).send({todo});
-  }).catch((e) => res.status(400).send());
+        return res.status(404).send();
+      }
+     res.status(200).send({todo});
+   } catch (e) {
+     res.status(400).send();
+   }
 });
 
 //http patch resource
@@ -120,31 +125,30 @@ app.patch('/todos/:id', authenticate, (req, res) => {
   })
 });
 
-// POST /users
-app.post('/Users', (req, res) => {
-  var body = _.pick(req.body, ['email', 'password']);
-  var user = new Users(body);
-
-  user.save().then(() => {
-    return user.generateAuthToken();
-  }).then((token) => {
+// POST /users with async-await instead of regular Promise
+app.post('/users', async (req, res) => {
+  try {
+    const body = _.pick(req.body, ['email', 'password']);
+    const user = new Users(body);
+    await user.save();
+    const token = await user.generateAuthToken();
     res.header('x-auth', token).send(user);
-  }).catch((error) => {
+  } catch (error) {
     res.status(400).send(error);
-  })
+  }
 });
 
 // POST /user/login {email, password}
-app.post('/users/login', (req, res) => {
-   var body = _.pick(req.body, ['email', 'password']);
-   //genera un token para el usuario q este en la base de datos
-   Users.findByCredentials(body.email, body.password).then((user) => {
-     return user.generateAuthToken().then((token) =>{
-       res.header('x-auth', token).send(user);
-     });
-   }).catch((e) => {
-     res.status(400).send();
-   });
+app.post('/users/login', async (req, res) => {
+  try {
+    //genera un token para el usuario q este en la base de datos
+      const body = _.pick(req.body, ['email', 'password']);
+      const user = await Users.findByCredentials(body.email, body.password);
+      const token = await user.generateAuthToken();
+      res.header('x-auth', token).send(user);
+  } catch (e) {
+    res.status(400).send();
+  }
 });
 
 // GET /User con authenticate
@@ -153,12 +157,13 @@ app.get('/users/me', authenticate, (req, res) => {
 });
 
 //delete Token from users that are log in
-app.delete('/users/me/token', authenticate, (req, res) => {
-  req.user.removeToken(req.token).then(() => {
+app.delete('/users/me/token', authenticate, async (req, res) => {
+  try {
+    await req.user.removeToken(req.token);
     res.status(200).send();
-  }, () => {
-    res.status(400).send();
-  });
+  } catch (e) {
+      res.status(400).send();
+  };
 });
 
 app.listen(port, () => {
